@@ -1,9 +1,12 @@
 'use client'
 
 import type { SubmitHandler } from 'react-hook-form'
-import { Button, Card, Flex, Input, Text } from '@chakra-ui/react'
+import { Box, Button, Card, Flex, Input } from '@chakra-ui/react'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import { Field } from '@/components/ui/field'
+
+// TODO add logos (HPD, PTNK...) at the end of page
 
 interface LoginFormFields {
   username: string
@@ -27,8 +30,10 @@ export default function LoginPage() {
 
   return (
     <Flex direction="column" align="center" width="100%">
-      <Flex direction="column" maxW="sm" width="100%" my="4">
-        <Text as="h1" textStyle="xl" fontWeight="semibold" textAlign="center" mb="8">TechRun 2025</Text>
+      <Flex direction="column" maxW="sm" width="100%" my="4" px="4">
+        <Box mb="8">
+          <Image src="/brand-logo.png" alt="TechRun" width={400} height={100} />
+        </Box>
 
         <Card.Root as="form" onSubmit={handleSubmit(onSubmit)}>
           <Card.Header>

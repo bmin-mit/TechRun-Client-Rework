@@ -1,9 +1,12 @@
-import { Button } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
+import DashboardStatsGrid from '@/components/game/DashboardStatsGrid'
+import TeamMembersBoard from '@/components/game/TeamMembersBoard'
 
 export default function Home() {
   return (
-    <div>
-      <Button>Chakra test</Button>
-    </div>
+    <Box my="4">
+      <DashboardStatsGrid />
+      <TeamMembersBoard />
+    </Box>
   )
 }
