@@ -4,7 +4,7 @@ import TeamMembersBoard from '@/components/game/TeamMembersBoard'
 
 export default function Home() {
   return (
-    <Box my="4">
+    <Box>
       <DashboardStatsGrid />
       <TeamMembersBoard />
     </Box>

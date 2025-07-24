@@ -29,7 +29,7 @@ const systemConfig = defineConfig({
   theme: {
     tokens: {
       fonts: {
-        heading: { value: interFont.style.fontFamily },
+        heading: { value: spaceGroteskFont.style.fontFamily },
         body: { value: interFont.style.fontFamily },
         space: { value: spaceGroteskFont.style.fontFamily },
         mono: { value: jetbrainsMonoFont.style.fontFamily },
