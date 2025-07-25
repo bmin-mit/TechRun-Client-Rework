@@ -31,7 +31,6 @@ function SkillCardTile({ card }: { card: SkillCard }) {
       </Skeleton>
 
       <Card.Body>
-        asldkfj
         <Button>Sử dụng</Button>
       </Card.Body>
     </Card.Root>
