@@ -3,8 +3,11 @@
 import type { SubmitHandler } from 'react-hook-form'
 import { Box, Button, Card, Flex, Input } from '@chakra-ui/react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { Field } from '@/components/ui/field'
+import { toaster } from '@/components/ui/toaster'
+import { login } from '@/lib/data/auth'
 
 // TODO add logos (HPD, PTNK...) at the end of page
 
@@ -25,8 +28,42 @@ export default function LoginPage() {
     },
   })
 
+  const router = useRouter()
+
   // TODO handle login
-  const onSubmit: SubmitHandler<LoginFormFields> = async (data) => { }
+  const onSubmit: SubmitHandler<LoginFormFields> = async (data) => {
+    const toastId = toaster.create({
+      type: 'loading',
+      title: 'Đăng nhập',
+      description: 'Đang đăng nhập...',
+    })
+
+    await login(data)
+      .then((loginSuccess) => {
+        if (loginSuccess) {
+          toaster.update(toastId, {
+            title: 'Đăng nhập',
+            description: 'Đăng nhập thành công',
+            type: 'success',
+          })
+          router.push('/')
+        }
+        else {
+          toaster.update(toastId, {
+            title: 'Đăng nhập',
+            description: 'Sai thông tin đăng nhập, vui lòng thử lại',
+            type: 'info',
+          })
+        }
+      })
+      .catch(() => {
+        toaster.update(toastId, {
+          title: 'Đăng nhập',
+          description: 'Đã xảy ra lỗi, vui lòng thử lại',
+          type: 'error',
+        })
+      })
+  }
 
   return (
     <Flex direction="column" align="center" width="100%">
