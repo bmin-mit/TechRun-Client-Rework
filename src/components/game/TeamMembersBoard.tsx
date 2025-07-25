@@ -1,4 +1,8 @@
-import { For, Table } from '@chakra-ui/react'
+'use client'
+
+import { For, Skeleton, Table, Text } from '@chakra-ui/react'
+import useSWR from 'swr'
+import { getMyTeam } from '@/lib/data/team'
 
 const members = [
   { id: '1', name: 'Trinh Van Quyet' },
@@ -9,11 +13,19 @@ const members = [
 ]
 
 export default function TeamMembersBoard() {
+  const { data, isLoading } = useSWR('/team/my-team', getMyTeam)
+
   return (
     <Table.Root>
       <Table.Header>
         <Table.Row>
-          <Table.ColumnHeader>Tên thành viên</Table.ColumnHeader>
+          <Table.ColumnHeader>
+            <Skeleton h="5" loading={isLoading} asChild>
+              <Text fontFamily="space">
+                {data?.name}
+              </Text>
+            </Skeleton>
+          </Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
 
@@ -21,7 +33,7 @@ export default function TeamMembersBoard() {
         <For each={members}>
           {member => (
             <Table.Row key={member.id}>
-              <Table.Cell>{member.name}</Table.Cell>
+              <Table.Cell fontWeight="light">{member.name}</Table.Cell>
             </Table.Row>
           )}
         </For>
