@@ -7,10 +7,10 @@ export async function middleware(request: NextRequest) {
 
   try {
     const result = await middlewareCheck(accessToken)
-    console.log('Authenticated user', result.name, result.username, 'at', request.nextUrl.pathname)
+    console.log(`Authenticated user "${result.name}" (${result.username}) at ${request.nextUrl.pathname}`)
   }
   catch (e) {
-    console.log('Failed to authenticate with access token:', accessToken, 'at', request.nextUrl.pathname)
+    console.log(`Failed to authenticate with access token: ${accessToken} at ${request.nextUrl.pathname}`)
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
