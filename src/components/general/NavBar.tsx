@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from 'lucide-react'
 import { Box, Button, Flex, For, SimpleGrid, Text } from '@chakra-ui/react'
-import { Flame, Gavel, Home, Puzzle } from 'lucide-react'
+import { Flame, Gavel, Home, MapPinned } from 'lucide-react'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -14,9 +14,9 @@ const navButtons = [
     link: '/',
   },
   {
-    icon: Puzzle,
-    text: 'Mảnh dữ liệu',
-    link: '/data-piece',
+    icon: MapPinned,
+    text: 'Trạm',
+    link: '/stations',
   },
   {
     icon: Flame,

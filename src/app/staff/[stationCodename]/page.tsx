@@ -1,5 +1,3 @@
-import { use } from 'react'
-import useSWR from 'swr'
 import StationData from '@/lib/data/station'
 
 export async function generateStaticParams() {
@@ -11,9 +9,10 @@ export async function generateStaticParams() {
 }
 
 export default function StationPage({ params }: { params: Promise<{ stationCodename: string }> }) {
-  const { stationCodename } = use(params)
-
-  const { data, isLoading } = useSWR(`/station/codename/${stationCodename}`, () => StationData.getByCodeName(stationCodename))
-
-  return <div></div>
+  // const { stationCodename } = use(params)
+  //
+  // const { data, isLoading } = useSWR(stationEndpoints.getByCodename(stationCodename), () => StationData.getByCodeName(stationCodename))
+  //
+  // return <div></div>
+  return <div />
 }

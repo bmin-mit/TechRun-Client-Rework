@@ -21,7 +21,7 @@ export const config = {
   matcher: [
     '/',
     '/bid',
-    '/data-piece',
+    '/stations',
     '/skill-cards',
   ],
 }
