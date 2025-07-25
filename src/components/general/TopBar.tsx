@@ -10,16 +10,16 @@ export default function TopBar() {
   const { data } = useSWR('/team/my-team', getMyTeam)
 
   return (
-    <Box position="fixed" w="full" borderBottom="1px solid gray" bg="bg">
+    <Box position="fixed" w="full" borderBottom="1px solid gray" bg="bg" zIndex="100">
       <Flex h="12" maxW="lg" mx="auto" px="4" justify="space-between" gap="4" alignItems="center" fontSize={{ base: 'xs', sm: 'md' }}>
         <Show when={data} fallback={<Skeleton h="6" w="full" />}>
           <Text fontFamily="space" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">{data?.name}</Text>
 
           <HStack gap="4">
             <TopBarTile icon={CircleDollarSign} text={data?.coins} color="blue.500" />
-            <TopBarTile icon={MapPin} text={3} color="green.500" />
-            <TopBarTile icon={Puzzle} text={data?.unlockedPuzzles?.length ?? 0} color="red.500" />
-            <TopBarTile icon={Flame} text={data?.skillCards?.length ?? 0} color="orange.500" />
+            <TopBarTile icon={MapPin} text="3" color="green.500" />
+            <TopBarTile icon={Puzzle} text={data?.unlockedPuzzles?.length?.toString() ?? '0'} color="red.500" />
+            <TopBarTile icon={Flame} text={data?.skillCards?.length?.toString() ?? '0'} color="orange.500" />
           </HStack>
         </Show>
       </Flex>

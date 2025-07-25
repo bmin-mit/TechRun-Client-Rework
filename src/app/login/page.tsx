@@ -69,7 +69,7 @@ export default function LoginPage() {
     <Flex direction="column" align="center" width="100%">
       <Flex direction="column" maxW="sm" width="100%" my="4" px="4">
         <Box mb="8">
-          <Image src="/brand-logo.png" alt="TechRun" width={400} height={100} />
+          <Image src="/brand-logo.png" alt="TechRun" width={400} height={100} loading="eager" />
         </Box>
 
         <Card.Root as="form" onSubmit={handleSubmit(onSubmit)}>
