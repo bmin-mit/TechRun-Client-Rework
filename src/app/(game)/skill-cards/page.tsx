@@ -27,7 +27,7 @@ function SkillCardTile({ card }: { card: SkillCard }) {
   return (
     <Card.Root overflow="clip">
       <Skeleton loading={!imageLoaded} w="full">
-        <Image src={skillCardImage[card]} alt="" width="503" height="322" onLoadingComplete={() => setImageLoaded(true)} />
+        <Image src={skillCardImage[card]} alt="" width="503" height="322" onLoad={() => setImageLoaded(true)} />
       </Skeleton>
 
       <Card.Body>

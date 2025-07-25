@@ -1,3 +1,5 @@
+import { use } from 'react'
+import { PinProtected } from '@/components/staff/PinProtected'
 import StationData from '@/lib/data/station'
 
 export async function generateStaticParams() {
@@ -9,10 +11,6 @@ export async function generateStaticParams() {
 }
 
 export default function StationPage({ params }: { params: Promise<{ stationCodename: string }> }) {
-  // const { stationCodename } = use(params)
-  //
-  // const { data, isLoading } = useSWR(stationEndpoints.getByCodename(stationCodename), () => StationData.getByCodeName(stationCodename))
-  //
-  // return <div></div>
-  return <div />
+  const { stationCodename } = use(params)
+  return <PinProtected stationCodename={stationCodename} />
 }

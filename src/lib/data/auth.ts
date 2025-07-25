@@ -36,3 +36,7 @@ interface MyTeamResDto {
 export async function middlewareCheck(accessToken?: string): Promise<MyTeamResDto> {
   return requests.get('/team/my-team', { headers: { Authorization: `Bearer ${accessToken}` } }).then(res => res.data)
 }
+
+export async function pinAuth(pin: string, stationCodename: string) {
+  return requests.post('/station/auth', { pin, stationCodename }).then(res => res.data)
+}

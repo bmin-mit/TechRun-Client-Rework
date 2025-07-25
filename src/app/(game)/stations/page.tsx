@@ -25,7 +25,7 @@ export default function DataPiecePage() {
           </Box>
         )}
       >
-        <Accordion.Root variant="enclosed">
+        <Accordion.Root variant="enclosed" collapsible>
           <For each={Object.keys(groupedStations)}>
             {stationGroupName => (
               <Accordion.Item key={stationGroupName} value={stationGroupName}>

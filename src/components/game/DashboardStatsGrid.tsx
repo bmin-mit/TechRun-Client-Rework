@@ -40,13 +40,13 @@ export default function DashboardStatsGrid() {
 
 function StatsTile({ children, icon: Icon, color, isLoading }: { children?: string, icon: LucideIcon, color: string, isLoading: boolean }) {
   return (
-    <Grid bg="colorPalette.600" p="2" rounded="md" colorPalette={color} color="white" templateColumns="auto 1fr" gap="2">
-      <Box bg="colorPalette.700" p="2" rounded="md">
+    <Grid bg="colorPalette.600" p="2" rounded="md" colorPalette={color} color="white" templateColumns="auto 1fr" gap="2" alignItems="center">
+      <Box bg="colorPalette.700" p="2" rounded="md" h="fit">
         <Icon size="24" />
       </Box>
 
-      <Skeleton h="6" asChild loading={isLoading}>
-        <Text fontFamily="space" fontWeight="semibold" alignSelf="center">
+      <Skeleton w="full" asChild loading={isLoading}>
+        <Text fontFamily="space" fontWeight="semibold">
           {children}
         </Text>
       </Skeleton>
