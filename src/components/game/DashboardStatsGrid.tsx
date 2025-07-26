@@ -22,7 +22,7 @@ export default function DashboardStatsGrid() {
       <StatsTile icon={CircleDollarSign} color="blue" isLoading={isLoading}>
         {data?.coins ?? 0}
         {' '}
-        Xu
+        Byte
       </StatsTile>
 
       <StatsTile icon={MapPin} color="teal" isLoading={isLoading}>
