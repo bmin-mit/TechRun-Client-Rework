@@ -49,7 +49,7 @@ export function PinProtected({ stationCodename, onValidated }: { stationCodename
 
   return (
     <Dialog.Root defaultOpen open={open} size="sm">
-      <Dialog.Backdrop />
+      <Dialog.Backdrop bg="bg" />
       <Dialog.Positioner>
         <Dialog.Content>
           <Dialog.CloseTrigger />

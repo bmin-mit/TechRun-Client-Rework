@@ -1,6 +1,7 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Box, Grid, SimpleGrid, Skeleton, Text } from '@chakra-ui/react'
 import { CircleDollarSign, Flame, MapPin, Puzzle } from 'lucide-react'
 import useSWR from 'swr'
@@ -13,7 +14,7 @@ export default function DashboardStatsGrid() {
     <SimpleGrid columns={2} gap="2" mb="4">
       {/* Xu, trạm đã qua, mảnh dữ liệu, thẻ kỹ năng */}
       <StatsTile icon={CircleDollarSign} color="blue" isLoading={isLoading}>
-        {data?.coins}
+        {data?.coins ?? 0}
         {' '}
         Xu
       </StatsTile>
@@ -37,7 +38,7 @@ export default function DashboardStatsGrid() {
   )
 }
 
-function StatsTile({ children, icon: Icon, color, isLoading }: { children?: string, icon: LucideIcon, color: string, isLoading: boolean }) {
+function StatsTile({ children, icon: Icon, color, isLoading }: { children?: ReactNode, icon: LucideIcon, color: string, isLoading: boolean }) {
   return (
     <Grid bg="colorPalette.600" p="2" rounded="md" colorPalette={color} color="white" templateColumns="auto 1fr" gap="2" alignItems="center">
       <Box bg="colorPalette.700" p="2" rounded="md" h="fit">

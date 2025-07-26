@@ -3,9 +3,9 @@
 import Cookies from 'js-cookie'
 
 export function savePin(pin: string, station: string) {
-  Cookies.set(station, pin)
+  Cookies.set(`pin-${station}`, pin)
 }
 
 export function getPin(station: string): string | undefined {
-  return Cookies.get(station)
+  return Cookies.get(`pin-${station}`)
 }

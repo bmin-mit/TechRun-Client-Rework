@@ -10,7 +10,7 @@ export default function TopBar() {
   const { data } = useSWR('/team/my-team', getMyTeam)
 
   return (
-    <Box position="fixed" w="full" borderBottom="1px solid gray" bg="bg" zIndex="100">
+    <Box position="fixed" w="full" top="0" borderBottom="1px solid gray" bg="bg" zIndex="100">
       <Flex h="12" maxW="lg" mx="auto" px="4" justify="space-between" gap="4" alignItems="center" fontSize={{ base: 'xs', sm: 'md' }}>
         <Show when={data} fallback={<Skeleton h="6" w="full" />}>
           <Text fontFamily="space" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">{data?.name}</Text>

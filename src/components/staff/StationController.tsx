@@ -24,18 +24,17 @@ import StationData, { stationEndpoints } from '@/lib/data/station'
 import { getAllTeams } from '@/lib/data/team'
 
 export function StationController({ stationCodename }: { stationCodename: string }) {
+  const [authenticated, setAuthenticated] = useState(false)
+  const [currentTeam, setCurrentTeam] = useState<Team>()
+
   const { data, isLoading } = useSWR(
     stationEndpoints.getByCodename(stationCodename),
     () => StationData.getByCodeName(stationCodename),
   )
 
-  const { data: teamsData, mutate: mutateTeams } = useSWR(
-    `/team/staff/teams`,
+  const { data: teamsData } = useSWR(
+    authenticated ? `/team/staff/teams` : null,
     () => getAllTeams(getPin(stationCodename)!, stationCodename),
-    {
-      revalidateOnMount: false, // do not fetch on mount
-      revalidateOnFocus: false, // optional: prevent auto-refetch
-    },
   )
 
   const teamsCollection = useMemo(
@@ -46,11 +45,9 @@ export function StationController({ stationCodename }: { stationCodename: string
     [teamsData],
   )
 
-  const [currentTeam, setCurrentTeam] = useState<Team>()
-
   return (
     <>
-      <PinProtected stationCodename={stationCodename} onValidated={mutateTeams} />
+      <PinProtected stationCodename={stationCodename} onValidated={() => setAuthenticated(true)} />
       <Show
         when={!isLoading}
         fallback={(

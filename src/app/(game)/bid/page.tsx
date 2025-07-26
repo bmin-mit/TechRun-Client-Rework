@@ -1,20 +1,16 @@
 'use client'
 
 import type { SubmitHandler } from 'react-hook-form'
-import { Box, Button, Card, Flex, HStack, Input, Text } from '@chakra-ui/react'
-import { CircleDollarSign, Clock } from 'lucide-react'
+import { Box, Button, Card, Flex, Input, Skeleton, Text } from '@chakra-ui/react'
+import { Clock } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Field } from '@/components/ui/field'
+import { useCurrentAuction } from '@/hooks/useCurrentAuction'
 
 export default function BidPage() {
-  const isBidding = false
-
   return (
     <Box>
-      <Flex justify="space-between">
-        <BidTimer />
-        <Balance />
-      </Flex>
+      <BidTimer />
 
       <BidForm />
     </Box>
@@ -22,20 +18,19 @@ export default function BidPage() {
 }
 
 function BidTimer() {
-  return (
-    <HStack>
-      <Clock />
-      <Text fontFamily="space">Time left</Text>
-    </HStack>
-  )
-}
+  const { auction, isLoading } = useCurrentAuction()
 
-function Balance() {
+  console.log(auction)
+
   return (
-    <HStack>
-      <CircleDollarSign />
-      <Text fontFamily="space">2000</Text>
-    </HStack>
+    <Skeleton loading={isLoading} asChild>
+      <Box w="full" mb="4">
+        <Flex justify="center" w="full" gap="2" alignItems="center">
+          <Clock />
+          <Text fontFamily="space">{auction === null ? '00:00' : ''}</Text>
+        </Flex>
+      </Box>
+    </Skeleton>
   )
 }
 
@@ -70,6 +65,8 @@ function BidForm() {
           chi tiết về cách đấu giá hoạt động
         </Card.Description>
       </Card.Header>
+
+      {/*  THÊM THẺ ĐẤU GIÁ VÀO ĐÂY */}
 
       <Card.Body>
         <Field
