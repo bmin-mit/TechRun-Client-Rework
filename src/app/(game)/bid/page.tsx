@@ -1,18 +1,22 @@
 'use client'
 
 import type { SubmitHandler } from 'react-hook-form'
-import { Box, Button, Card, Flex, Heading, Input, Show, Table, Text } from '@chakra-ui/react'
+import { Box, Button, Card, Code, Dialog, Flex, Heading, Input, Show, Skeleton, Table, Text } from '@chakra-ui/react'
 import { Clock } from 'lucide-react'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import PageSpinner from '@/components/general/PageSpinner'
 import { Field } from '@/components/ui/field'
+import { toaster } from '@/components/ui/toaster'
 import { useCurrentAuction } from '@/hooks/useCurrentAuction'
+import { useMyTeam } from '@/hooks/useMyTeam'
 import { useOtherTeamsCoins } from '@/hooks/useOtherTeamsCoins'
+import { AuctionData } from '@/lib/data/auction'
+import { skillCardBasePrice, skillCardImage } from '@/types/skill-card.enum'
 
 export default function BidPage() {
   const { auction, isLoading, isWaiting } = useCurrentAuction()
-
-  console.log(auction)
 
   return (
     <Show when={!isLoading} fallback={<PageSpinner />}>
@@ -30,12 +34,27 @@ export default function BidPage() {
 
 function BidTimer() {
   const { auction } = useCurrentAuction()
+  const [, setUpdate] = useState(false)
+
+  const remainingTime = auction ? auction.endTime.getTime() - new Date().getTime() : 0
+
+  const initialTimer = remainingTime > 0
+    ? `${String(Math.floor(remainingTime / 1000 / 60)).padStart(2, '0')}:${String(Math.floor(remainingTime / 1000) % 60).padStart(2, '0')}`
+    : '00:00'
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setUpdate(prev => !prev)
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <Box w="full" mb="4">
       <Flex justify="center" w="full" gap="2" alignItems="center">
         <Clock />
-        <Text fontFamily="space">{auction === null ? '00:00' : ''}</Text>
+        <Text fontFamily="space">{auction === null ? '00:00' : initialTimer}</Text>
       </Flex>
     </Box>
   )
@@ -46,9 +65,14 @@ interface BidFormFields {
 }
 
 function BidForm() {
+  const { auction } = useCurrentAuction()
+  const { data } = useMyTeam()
+  const [imageLoaded, setImageLoaded] = useState(false)
+
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<BidFormFields>({
     defaultValues: {
@@ -57,45 +81,103 @@ function BidForm() {
   })
 
   const onSubmit: SubmitHandler<BidFormFields> = async (data) => {
-    console.log(data)
+    try {
+      await AuctionData.postBid(data.value)
+      toaster.create({
+        type: 'success',
+        title: 'Thành công',
+        description: `Đặt cược thành công`,
+      })
+    }
+    catch (error) {
+      toaster.create({
+        type: 'error',
+        title: 'Lỗi',
+        description: 'Đặt cược thất bại. Vui lòng thử lại sau.',
+      })
+    }
   }
 
   // TODO thêm luật đấu giá
+  // TODO Disable button khi đã cược
 
   return (
-    <Card.Root as="form" onSubmit={handleSubmit(onSubmit)}>
-      <Card.Header>
-        <Card.Title textAlign="center" fontFamily="space">
-          Tham gia đấu giá
-        </Card.Title>
-        <Card.Description>
-          chi tiết về cách đấu giá hoạt động
-        </Card.Description>
-      </Card.Header>
+    <>
+      <Heading textAlign="center" mb="2">Vật phẩm đang được đấu giá</Heading>
+      <Skeleton loading={!imageLoaded} w="full" mb="4">
+        <Image loading="eager" src={skillCardImage[auction!.skillCard]} alt="" width="503" height="322" onLoad={() => setImageLoaded(true)} />
+      </Skeleton>
 
-      {/*  THÊM THẺ ĐẤU GIÁ VÀO ĐÂY */}
+      <Card.Root as="form" onSubmit={handleSubmit(onSubmit)}>
+        <Card.Header>
+          <Card.Title textAlign="center" fontFamily="space">
+            Tham gia đấu giá
+          </Card.Title>
+          <Card.Description textAlign="center">
+            Giá khởi điểm:
+            {' '}
+            {skillCardBasePrice[auction!.skillCard]}
+            {' '}
+            Byte
+          </Card.Description>
+        </Card.Header>
 
-      <Card.Body>
-        <Field
-          label="Lượng xu tham gia đấu giá"
-          errorText={errors.value?.message}
-          invalid={errors.value !== undefined}
-        >
-          <Input
-            placeholder="Nhập số xu"
-            disabled={isSubmitting}
-            {...register('value', { required: 'Vui lòng nhập số lượng xu đấu giá' })}
-            type="number"
-          />
-        </Field>
-      </Card.Body>
+        <Card.Body>
+          <Field
+            label="Lượng Byte tham gia đấu giá"
+            errorText={errors.value?.message}
+            invalid={errors.value !== undefined}
+          >
+            <Input
+              placeholder="Nhập số Byte muốn cược"
+              disabled={isSubmitting}
+              min={1}
+              step={1}
+              {...register('value', { required: 'Vui lòng nhập số lượng xu đấu giá' })}
+              type="number"
+            />
+          </Field>
+        </Card.Body>
 
-      <Card.Footer>
-        <Button w="100%" type="submit" disabled={isSubmitting}>
-          Đấu giá
-        </Button>
-      </Card.Footer>
-    </Card.Root>
+        <Card.Footer>
+          <Dialog.Root>
+            <Dialog.Trigger asChild>
+              <Button w="100%" type="button" disabled={!data || !auction || isSubmitting || getValues('value') < skillCardBasePrice[auction.skillCard] || getValues('value') > data.coins}>
+                Đấu giá
+              </Button>
+            </Dialog.Trigger>
+
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+              <Dialog.Content>
+                <Dialog.Header>
+                  <Dialog.Title>Xác nhận đấu giá</Dialog.Title>
+                </Dialog.Header>
+
+                <Dialog.Body>
+                  Bạn có chắc chắn muốn đặt cược
+                  {' '}
+                  <Code>
+                    {getValues('value')}
+                  </Code>
+                  {' '}
+                  Byte cho vật phẩm này?
+                </Dialog.Body>
+
+                <Dialog.Footer>
+                  <Dialog.ActionTrigger asChild>
+                    <Button variant="subtle">Huỷ</Button>
+                  </Dialog.ActionTrigger>
+                  <Dialog.ActionTrigger asChild>
+                    <Button type="submit">Xác nhận</Button>
+                  </Dialog.ActionTrigger>
+                </Dialog.Footer>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Dialog.Root>
+        </Card.Footer>
+      </Card.Root>
+    </>
   )
 }
 

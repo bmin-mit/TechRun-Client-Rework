@@ -6,6 +6,7 @@ export class AuctionData {
   static async getCurrent(): Promise<Auction | null> {
     try {
       const res = await requests.get('/auction/current')
+
       return {
         ...res.data,
         endTime: new Date(res.data.endTime),
@@ -22,5 +23,9 @@ export class AuctionData {
     }
 
     return null
+  }
+
+  static async postBid(bid: number): Promise<void> {
+    return requests.post(`/auction/bid?bidPrice=${bid}`)
   }
 }
