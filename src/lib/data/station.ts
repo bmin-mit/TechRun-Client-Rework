@@ -1,9 +1,11 @@
+import type { StationCheckinHistory } from '@/types/station-checkin-history.types'
 import type { Station } from '@/types/station.types'
 import { requests } from '@/lib/data/requests'
 
 export const stationEndpoints = {
   getAll: () => '/station/stations',
   getByCodename: (codename: string) => `/station/codename/${codename}`,
+  getVisitedStation: (teamUsername: string) => `/station/visited/${teamUsername}`,
 }
 
 export default class StationData {
@@ -14,6 +16,11 @@ export default class StationData {
 
   static async getAll(): Promise<Station[]> {
     const res = await requests.get(stationEndpoints.getAll())
+    return res.data
+  }
+
+  static async getVisitedStation(teamUsername: string): Promise<StationCheckinHistory[]> {
+    const res = await requests.get(`/station/visited/${teamUsername}`)
     return res.data
   }
 }
