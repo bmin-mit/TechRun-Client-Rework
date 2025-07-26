@@ -6,6 +6,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'TechRun | BDHVS25',
+  icons: ['/logo.ico'],
 }
 
 export default function RootLayout({

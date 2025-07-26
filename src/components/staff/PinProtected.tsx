@@ -70,7 +70,7 @@ export function PinProtected({ stationCodename, onValidated }: { stationCodename
 
             <PinInput.Root
               mask
-              onValueComplete={details => validatePin(details.valueAsString)}
+              onValueComplete={details => queueMicrotask(() => validatePin(details.valueAsString))}
             >
               <PinInput.HiddenInput disabled={checking} />
               <PinInput.Control>
