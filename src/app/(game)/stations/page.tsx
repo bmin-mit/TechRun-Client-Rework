@@ -2,10 +2,10 @@
 
 import type { StationPosition } from '@/types/station.types'
 import { Accordion, Box, Card, For, Heading, Show, Span, Spinner, Tag, Text, VStack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import useSWR from 'swr'
+import { useMyTeam } from '@/hooks/useMyTeam'
 import StationData, { stationEndpoints } from '@/lib/data/station'
-import { getMyTeam } from '@/lib/data/team'
 
 const stationLocation: Record<StationPosition, string> = {
   khtn: 'Trường Đại học Khoa học tự nhiên, ĐHQG-HCM',
@@ -14,34 +14,13 @@ const stationLocation: Record<StationPosition, string> = {
 }
 
 export default function DataPiecePage() {
+  const { data: team } = useMyTeam()
   const { data, isLoading } = useSWR(stationEndpoints.getAll(), StationData.getAll)
-  const [teamUsername, setTeamUsername] = useState<string | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-
-    const fetchTeam = async () => {
-      try {
-        const team = await getMyTeam()
-        if (isMounted && team) {
-          setTeamUsername(team.username)
-        }
-      }
-      catch (error) {
-        console.error('Failed to fetch team:', error)
-      }
-    }
-
-    void fetchTeam()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   const { data: visitedStationData } = useSWR(
-    teamUsername ? stationEndpoints.getVisitedStation(teamUsername) : null,
+    team ? stationEndpoints.getVisitedStation(team.username) : null,
     StationData.getVisitedStation,
+    { refreshInterval: 2000 },
   )
 
   const groupedStations = useMemo(

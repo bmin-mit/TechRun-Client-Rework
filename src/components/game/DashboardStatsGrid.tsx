@@ -5,10 +5,16 @@ import type { ReactNode } from 'react'
 import { Box, Grid, SimpleGrid, Skeleton, Text } from '@chakra-ui/react'
 import { CircleDollarSign, Flame, MapPin, Puzzle } from 'lucide-react'
 import useSWR from 'swr'
+import StationData, { stationEndpoints } from '@/lib/data/station'
 import { getMyTeam } from '@/lib/data/team'
 
 export default function DashboardStatsGrid() {
   const { data, isLoading } = useSWR('/team/my-team', getMyTeam)
+  const { data: visitedStationData } = useSWR(
+    data ? stationEndpoints.getVisitedStation(data.username) : null,
+    StationData.getVisitedStation,
+    { refreshInterval: 2000 },
+  )
 
   return (
     <SimpleGrid columns={2} gap="2" mb="4">
@@ -20,7 +26,9 @@ export default function DashboardStatsGrid() {
       </StatsTile>
 
       <StatsTile icon={MapPin} color="teal" isLoading={isLoading}>
-        3 Trạm đã qua
+        {visitedStationData?.length ?? 0}
+        {' '}
+        Trạm đã qua
       </StatsTile>
 
       <StatsTile icon={Puzzle} color="red" isLoading={isLoading}>
