@@ -15,10 +15,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-      </head>
       <body
         style={{
           WebkitFontSmoothing: 'antialiased',

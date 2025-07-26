@@ -267,8 +267,8 @@ function StationAction({ action, team, stationCodename }: { action: 'start' | 'f
               <Button variant="outline">Huỷ</Button>
             </Dialog.ActionTrigger>
 
-            <Dialog.ActionTrigger asChild onClick={handleAction}>
-              <Button>Xác nhận</Button>
+            <Dialog.ActionTrigger asChild>
+              <Button onClick={handleAction}>Xác nhận</Button>
             </Dialog.ActionTrigger>
           </Dialog.Footer>
         </Dialog.Content>
