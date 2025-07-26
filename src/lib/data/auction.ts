@@ -6,7 +6,10 @@ export class AuctionData {
   static async getCurrent(): Promise<Auction | null> {
     try {
       const res = await requests.get('/auction/current')
-      return res.data
+      return {
+        ...res.data,
+        endTime: new Date(res.data.endTime),
+      }
     }
     catch (error) {
       if (error instanceof AxiosError) {
@@ -14,8 +17,8 @@ export class AuctionData {
           return null
       }
 
-      // @ts-expect-error unknown error type
-      console.error(`Error fetching current auction: ${error.message}`)
+      if (error instanceof Error)
+        console.error(`Error fetching current auction: ${error.message}`)
     }
 
     return null

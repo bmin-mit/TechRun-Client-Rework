@@ -14,6 +14,7 @@ import {
   Select,
   Show,
   Spinner,
+  Table,
   Text,
   VStack,
 } from '@chakra-ui/react'
@@ -29,7 +30,7 @@ import { SkillCardAction } from '@/types/skill-card-action.enum'
 
 export function StationController({ stationCodename }: { stationCodename: string }) {
   const [authenticated, setAuthenticated] = useState(false)
-  const [currentTeam, setCurrentTeam] = useState<Team>()
+  const [selectValue, setSelectValue] = useState<string[]>([])
 
   const { data, isLoading } = useSWR(
     stationEndpoints.getByCodename(stationCodename),
@@ -41,9 +42,11 @@ export function StationController({ stationCodename }: { stationCodename: string
     () => getAllTeams(getPin(stationCodename)!, stationCodename),
   )
 
+  const currentTeam = useMemo(() => teamsData?.find((team: Team) => team.username === selectValue[0]), [teamsData, selectValue])
+
   const teamsCollection = useMemo(
     () => teamsData?.map(team => ({
-      value: team,
+      value: team.username,
       label: team.name,
     })) ?? [],
     [teamsData],
@@ -51,16 +54,14 @@ export function StationController({ stationCodename }: { stationCodename: string
 
   const { data: teamSkillCardHistory } = useSWR(
     currentTeam ? `/team/skill-card-history/${currentTeam.username}` : null,
-    () => {
-      getTeamSkillCardHistory(currentTeam!.username, stationCodename, getPin(stationCodename)!).catch((error) => {
-        console.error('Error fetching team skill card history:', error)
-        toaster.create({
-          type: 'error',
-          title: 'Lỗi',
-          description: 'Không thể tải lịch sử thẻ chức năng của đội. Vui lòng thử lại sau.',
-        })
+    () => getTeamSkillCardHistory(currentTeam!.username, stationCodename, getPin(stationCodename)!).catch((error) => {
+      console.error('Error fetching team skill card history:', error)
+      toaster.create({
+        type: 'error',
+        title: 'Lỗi',
+        description: 'Không thể tải lịch sử thẻ chức năng của đội. Vui lòng thử lại sau.',
       })
-    },
+    }),
   )
 
   const teamSkillCardHistoryCollection = useMemo(
@@ -85,7 +86,6 @@ export function StationController({ stationCodename }: { stationCodename: string
           </Box>
         )}
       >
-
         <Card.Root>
           <Card.Body spaceY="4">
             <VStack mb="4">
@@ -102,9 +102,8 @@ export function StationController({ stationCodename }: { stationCodename: string
             <Show when={teamsData}>
               <Select.Root
                 collection={createListCollection({ items: teamsCollection })}
-                onValueChange={async ({ items }) => {
-                  setCurrentTeam(items[0].value)
-                }}
+                value={selectValue}
+                onValueChange={e => setSelectValue(e.value)}
               >
                 <Select.HiddenSelect />
                 <Select.Label>Chọn đội chơi</Select.Label>
@@ -135,39 +134,40 @@ export function StationController({ stationCodename }: { stationCodename: string
               </Select.Root>
             </Show>
 
-            <Show when={teamSkillCardHistoryCollection && teamSkillCardHistoryCollection.length > 0}>
-              <Box mt="6">
-                <Heading fontSize="md" mb="2">Danh sách thẻ đã sử dụng</Heading>
-                <Box overflowX="auto">
-                  <table className="chakra-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ textAlign: 'left', padding: '8px' }}>Tên thẻ</th>
-                        <th style={{ textAlign: 'left', padding: '8px' }}>Thời gian sử dụng</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {teamSkillCardHistoryCollection?.map((card: { value: SkillCardHistory, label: string }) => (
-                        <tr key={card.value._id}>
-                          <td style={{ padding: '8px' }}>
-                            {card.label}
-                          </td>
-                          <td style={{ padding: '8px' }}>
-                            {/* TODO: Do we need to parse the Date first? It's from a JSON response */}
-                            {card.value.createdAt.toLocaleString('vi-VN')}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Box>
-              </Box>
-            </Show>
-
             <StationAction action="start" team={currentTeam} stationCodename={stationCodename} />
             <StationAction action="finish" team={currentTeam} stationCodename={stationCodename} />
           </Card.Body>
         </Card.Root>
+
+        <Show when={teamSkillCardHistoryCollection}>
+          <Box mt="6">
+            <Heading fontSize="md" mb="2">
+              Danh sách thẻ
+              {' '}
+              <Code>{data?.name}</Code>
+              {' '}
+              đã sử dụng
+            </Heading>
+            <Box overflowX="auto">
+              <Table.Root>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.ColumnHeader>Tên thẻ</Table.ColumnHeader>
+                    <Table.ColumnHeader>Thời gian sử dụng</Table.ColumnHeader>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {teamSkillCardHistoryCollection?.map((card: { value: SkillCardHistory, label: string }) => (
+                    <Table.Row key={card.value._id}>
+                      <Table.Cell>{card.label}</Table.Cell>
+                      <Table.Cell>{card.value.createdAt.toLocaleString('vi-VN')}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+            </Box>
+          </Box>
+        </Show>
       </Show>
     </>
   )
