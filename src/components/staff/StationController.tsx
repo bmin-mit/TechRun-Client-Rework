@@ -17,7 +17,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { PinProtected } from '@/components/staff/PinProtected'
 import { toaster } from '@/components/ui/toaster'
@@ -49,12 +49,17 @@ export function StationController({ stationCodename }: { stationCodename: string
     [teamsData],
   )
 
-  const { data: teamSkillCardHistory, mutate: mutateTeamSkillCardHistory } = useSWR(
+  const { data: teamSkillCardHistory } = useSWR(
     currentTeam ? `/team/skill-card-history/${currentTeam.username}` : null,
-    () => currentTeam ? getTeamSkillCardHistory(currentTeam.username, stationCodename, getPin(stationCodename)!) : undefined,
-    {
-      revalidateOnMount: false,
-      revalidateOnFocus: false,
+    () => {
+      getTeamSkillCardHistory(currentTeam!.username, stationCodename, getPin(stationCodename)!).catch((error) => {
+        console.error('Error fetching team skill card history:', error)
+        toaster.create({
+          type: 'error',
+          title: 'Lỗi',
+          description: 'Không thể tải lịch sử thẻ chức năng của đội. Vui lòng thử lại sau.',
+        })
+      })
     },
   )
 
@@ -68,17 +73,6 @@ export function StationController({ stationCodename }: { stationCodename: string
       })),
     [teamSkillCardHistory],
   )
-
-  useEffect(() => {
-    mutateTeamSkillCardHistory().catch((error) => {
-      console.error('Error fetching team skill card history:', error)
-      toaster.create({
-        type: 'error',
-        title: 'Lỗi',
-        description: 'Không thể tải lịch sử thẻ chức năng của đội. Vui lòng thử lại sau.',
-      })
-    })
-  }, [currentTeam])
 
   return (
     <>
