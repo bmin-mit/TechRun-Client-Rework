@@ -3,7 +3,9 @@
 import { Box, Button, Card, Code, Flex, For, Heading, Skeleton, Text, VStack } from '@chakra-ui/react'
 import Image from 'next/image'
 import { useState } from 'react'
+import { toaster } from '@/components/ui/toast'
 import { useMyTeam } from '@/hooks/useMyTeam'
+import { callUseCard } from '@/lib/data/team'
 import { SkillCard, skillCardImage } from '@/types/skill-card.enum'
 
 const skillCards = Object.values(SkillCard)
@@ -23,10 +25,32 @@ export default function SkillsPage() {
 }
 
 function SkillCardTile({ card }: { card: SkillCard }) {
-  const { data, isLoading } = useMyTeam()
+  const { data, isLoading, mutate } = useMyTeam()
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [disable, setDisable] = useState(false)
 
   const skillCardCount = data?.skillCards?.filter(skillCard => skillCard === card).length ?? 0
+
+  const callCard = async () => {
+    try {
+      setDisable(true)
+      await callUseCard(card)
+      void mutate()
+      toaster.create({
+        type: 'success',
+        message: `Đã sử dụng thẻ kỹ năng ${getSkillCardDisplayName(card)}`,
+      })
+    }
+    catch (error) {
+      console.error('Error using skill card:', error)
+      toaster.create({
+        type: 'error',
+        message: 'Không thể sử dụng thẻ kỹ năng',
+      })
+    }
+
+    setDisable(false)
+  }
 
   return (
     <Card.Root overflow="clip">
@@ -41,7 +65,7 @@ function SkillCardTile({ card }: { card: SkillCard }) {
               <Text as="span" fontFamily="space" my="auto">Đang có </Text>
               <Code as="span">{skillCardCount}</Code>
             </Box>
-            <Button w="fit" disabled={skillCardCount <= 0} position="absolute" right="0">Sử dụng</Button>
+            <Button w="fit" disabled={skillCardCount <= 0 || disable} position="absolute" right="0" onClick={callCard}>Sử dụng</Button>
           </Flex>
         </Skeleton>
       </Card.Body>

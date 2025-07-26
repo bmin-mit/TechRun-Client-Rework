@@ -1,3 +1,4 @@
+import type { SkillCard } from '@/types/skill-card.enum'
 import type { Team } from '@/types/team.types'
 import { requests } from '@/lib/data/requests'
 
@@ -11,4 +12,8 @@ export async function getAllTeams(pin: string, stationCodename: string): Promise
 
 export async function getAllTeamsCoins(): Promise<{ name: string, username: string, coins: number }[]> {
   return (await requests.get('/team/other-teams-coins')).data
+}
+
+export async function callUseCard(card: SkillCard) {
+  return (await requests.post(`/team/use-skill-card/${card}`)).data
 }
