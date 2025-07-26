@@ -67,7 +67,6 @@ export function StationController({ stationCodename }: { stationCodename: string
   const teamSkillCardHistoryCollection = useMemo(
     () => teamSkillCardHistory
       ?.filter((history: SkillCardHistory) => history.action === SkillCardAction.USED)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .map(card => ({
         value: card,
         label: getSkillCardDisplayName(card.skillCard),
@@ -136,6 +135,8 @@ export function StationController({ stationCodename }: { stationCodename: string
 
             <StationAction action="start" team={currentTeam} stationCodename={stationCodename} />
             <StationAction action="finish" team={currentTeam} stationCodename={stationCodename} />
+            <Button variant="subtle">Sử dụng thẻ vượt trạm minigame</Button>
+            <Button variant="subtle">Sử dụng thẻ hồi sinh</Button>
           </Card.Body>
         </Card.Root>
 
@@ -144,7 +145,7 @@ export function StationController({ stationCodename }: { stationCodename: string
             <Heading fontSize="md" mb="2">
               Danh sách thẻ
               {' '}
-              <Code>{data?.name}</Code>
+              <Code>{currentTeam?.name}</Code>
               {' '}
               đã sử dụng
             </Heading>

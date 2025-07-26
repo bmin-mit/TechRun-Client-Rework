@@ -43,3 +43,6 @@ export async function finishStation(teamUsername: string, stationCodename: strin
 
   return res.data
 }
+export async function minigamePass(teamUsername: string, stationCodename: string, pin: string) {
+  return await requests.post(`/station/minigame-pass/${teamUsername}`, { stationCodename, pin })
+}

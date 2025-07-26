@@ -3,8 +3,9 @@
 import { Box, Button, Card, Code, Flex, For, Heading, Skeleton, Text, VStack } from '@chakra-ui/react'
 import Image from 'next/image'
 import { useState } from 'react'
-import { toaster } from '@/components/ui/toast'
+import { toaster } from '@/components/ui/toaster'
 import { useMyTeam } from '@/hooks/useMyTeam'
+import { getSkillCardDisplayName } from '@/lib/data/skill-card-history'
 import { callUseCard } from '@/lib/data/team'
 import { SkillCard, skillCardImage } from '@/types/skill-card.enum'
 

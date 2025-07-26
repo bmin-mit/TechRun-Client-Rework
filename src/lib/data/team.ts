@@ -15,5 +15,5 @@ export async function getAllTeamsCoins(): Promise<{ name: string, username: stri
 }
 
 export async function callUseCard(card: SkillCard) {
-  return (await requests.post(`/team/use-skill-card/${card}`)).data
+  return (await requests.post(`/team/use-skill-card/?skillCard=${card}`)).data
 }
