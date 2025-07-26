@@ -17,3 +17,22 @@ export default class StationData {
     return res.data
   }
 }
+
+export async function visitStation(teamUsername: string, stationCodename: string, pin: string): Promise<void> {
+  const res = await requests.post(`/station/visit?teamUsername=${encodeURIComponent(teamUsername)}`, {
+    stationCodename,
+    pin,
+  })
+
+  return res.data
+}
+
+export async function finishStation(teamUsername: string, stationCodename: string, pin: string): Promise<void> {
+  // TODO: Update this to reflect the new API endpoint
+  const res = await requests.post(`/station/finish?teamUsername=${encodeURIComponent(teamUsername)}`, {
+    stationCodename,
+    pin,
+  })
+
+  return res.data
+}

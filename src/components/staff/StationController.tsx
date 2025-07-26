@@ -1,5 +1,6 @@
 'use client'
 
+import type { SkillCardHistory } from '@/types/skill-card-history.types'
 import type { Team } from '@/types/team.types'
 import {
   Box,
@@ -16,12 +17,15 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { PinProtected } from '@/components/staff/PinProtected'
+import { toaster } from '@/components/ui/toaster'
 import { getPin } from '@/lib/data/pin'
-import StationData, { stationEndpoints } from '@/lib/data/station'
+import { getSkillCardDisplayName, getTeamSkillCardHistory } from '@/lib/data/skill-card-history'
+import StationData, { finishStation, stationEndpoints, visitStation } from '@/lib/data/station'
 import { getAllTeams } from '@/lib/data/team'
+import { SkillCardAction } from '@/types/skill-card-action.enum'
 
 export function StationController({ stationCodename }: { stationCodename: string }) {
   const { data, isLoading } = useSWR(
@@ -47,6 +51,37 @@ export function StationController({ stationCodename }: { stationCodename: string
   )
 
   const [currentTeam, setCurrentTeam] = useState<Team>()
+
+  const { data: teamSkillCardHistory, mutate: mutateTeamSkillCardHistory } = useSWR(
+    currentTeam ? `/team/skill-card-history/${currentTeam.username}` : null,
+    () => currentTeam ? getTeamSkillCardHistory(currentTeam.username, stationCodename, getPin(stationCodename)!) : undefined,
+    {
+      revalidateOnMount: false,
+      revalidateOnFocus: false,
+    },
+  )
+
+  const teamSkillCardHistoryCollection = useMemo(
+    () => teamSkillCardHistory
+      ?.filter((history: SkillCardHistory) => history.action === SkillCardAction.USED)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(card => ({
+        value: card,
+        label: getSkillCardDisplayName(card.skillCard),
+      })),
+    [teamSkillCardHistory],
+  )
+
+  useEffect(() => {
+    mutateTeamSkillCardHistory().catch((error) => {
+      console.error('Error fetching team skill card history:', error)
+      toaster.create({
+        type: 'error',
+        title: 'Lỗi',
+        description: 'Không thể tải lịch sử thẻ chức năng của đội. Vui lòng thử lại sau.',
+      })
+    })
+  }, [currentTeam])
 
   return (
     <>
@@ -74,7 +109,12 @@ export function StationController({ stationCodename }: { stationCodename: string
             </VStack>
 
             <Show when={teamsData}>
-              <Select.Root collection={createListCollection({ items: teamsCollection })} onValueChange={({ items }) => setCurrentTeam(items[0].value)}>
+              <Select.Root
+                collection={createListCollection({ items: teamsCollection })}
+                onValueChange={async ({ items }) => {
+                  setCurrentTeam(items[0].value)
+                }}
+              >
                 <Select.HiddenSelect />
                 <Select.Label>Chọn đội chơi</Select.Label>
 
@@ -104,6 +144,35 @@ export function StationController({ stationCodename }: { stationCodename: string
               </Select.Root>
             </Show>
 
+            <Show when={teamSkillCardHistoryCollection && teamSkillCardHistoryCollection.length > 0}>
+              <Box mt="6">
+                <Heading fontSize="md" mb="2">Danh sách thẻ đã sử dụng</Heading>
+                <Box overflowX="auto">
+                  <table className="chakra-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left', padding: '8px' }}>Tên thẻ</th>
+                        <th style={{ textAlign: 'left', padding: '8px' }}>Thời gian sử dụng</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {teamSkillCardHistoryCollection?.map((card: { value: SkillCardHistory, label: string }) => (
+                        <tr key={card.value._id}>
+                          <td style={{ padding: '8px' }}>
+                            {card.label}
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            {/* TODO: Do we need to parse the Date first? It's from a JSON response */}
+                            {card.value.createdAt.toLocaleString('vi-VN')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Box>
+              </Box>
+            </Show>
+
             <StationAction action="start" team={currentTeam} stationCodename={stationCodename} />
             <StationAction action="finish" team={currentTeam} stationCodename={stationCodename} />
           </Card.Body>
@@ -118,6 +187,54 @@ function StationAction({ action, team, stationCodename }: { action: 'start' | 'f
     stationEndpoints.getByCodename(stationCodename),
     () => StationData.getByCodeName(stationCodename),
   )
+
+  const handleAction = async () => {
+    if (!team)
+      return
+
+    const pin = getPin(stationCodename)
+    if (!pin) {
+      console.error('PIN not found for station:', stationCodename)
+      return
+    }
+
+    try {
+      if (action === 'start') {
+        const toastId = toaster.create({
+          type: 'loading',
+          title: 'Đang xử lý',
+          description: `Đang bắt đầu thử thách...`,
+        })
+        await visitStation(team.username, stationCodename, getPin(stationCodename)!)
+        toaster.update(toastId, {
+          type: 'success',
+          title: 'Thành công',
+          description: `Đã bắt đầu thử thách tại trạm ${data?.name} cho đội ${team.name}`,
+        })
+      }
+      else if (action === 'finish') {
+        const toastId = toaster.create({
+          type: 'loading',
+          title: 'Đang xử lý',
+          description: `Đang hoàn thành thử thách...`,
+        })
+        await finishStation(team.username, stationCodename, getPin(stationCodename)!)
+        toaster.update(toastId, {
+          type: 'success',
+          title: 'Thành công',
+          description: `Đã hoàn thành thử thách tại trạm ${data?.name} cho đội ${team.name}`,
+        })
+      }
+    }
+    catch (error) {
+      console.error('Error during station action:', error)
+      toaster.create({
+        type: 'error',
+        title: 'Lỗi',
+        description: `Đã xảy ra lỗi khi ${action === 'start' ? 'bắt đầu' : 'hoàn thành'} thử thách tại trạm ${data?.name} cho đội ${team.name}. Vui lòng thử lại.`,
+      })
+    }
+  }
 
   return (
     <Dialog.Root role="alertdialog">
@@ -150,7 +267,7 @@ function StationAction({ action, team, stationCodename }: { action: 'start' | 'f
               <Button variant="outline">Huỷ</Button>
             </Dialog.ActionTrigger>
 
-            <Dialog.ActionTrigger asChild>
+            <Dialog.ActionTrigger asChild onClick={handleAction}>
               <Button>Xác nhận</Button>
             </Dialog.ActionTrigger>
           </Dialog.Footer>
