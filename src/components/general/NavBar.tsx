@@ -2,8 +2,7 @@
 
 import type { LucideIcon } from 'lucide-react'
 import { Box, Button, Flex, For, SimpleGrid, Text } from '@chakra-ui/react'
-import { Flame, Home, MapPinned } from 'lucide-react'
-
+import { Flame, Gavel, Home, MapPinned } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -23,11 +22,11 @@ const navButtons = [
     text: 'Thẻ kỹ năng',
     link: '/skill-cards',
   },
-  // {
-  //   icon: Gavel,
-  //   text: 'Đấu giá',
-  //   link: '/bid',
-  // },
+  {
+    icon: Gavel,
+    text: 'Đấu giá',
+    link: '/bid',
+  },
 ]
 
 export default function NavBar() {

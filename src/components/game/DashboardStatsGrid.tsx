@@ -3,7 +3,6 @@
 import type { LucideIcon } from 'lucide-react'
 import { Box, Grid, SimpleGrid, Skeleton, Text } from '@chakra-ui/react'
 import { CircleDollarSign, Flame, MapPin, Puzzle } from 'lucide-react'
-import React from 'react'
 import useSWR from 'swr'
 import { getMyTeam } from '@/lib/data/team'
 

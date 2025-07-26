@@ -5,16 +5,16 @@ import { useState } from 'react'
 import useSWR from 'swr'
 import { toaster } from '@/components/ui/toaster'
 import { pinAuth } from '@/lib/data/auth'
+import { savePin } from '@/lib/data/pin'
 import StationData, { stationEndpoints } from '@/lib/data/station'
 
-export function PinProtected({ stationCodename }: { stationCodename: string }) {
+export function PinProtected({ stationCodename, onValidated }: { stationCodename: string, onValidated?: () => void }) {
   const { data, isLoading } = useSWR(
     stationEndpoints.getByCodename(stationCodename),
     () => StationData.getByCodeName(stationCodename),
   )
 
   const [open, setOpen] = useState(true)
-  const [pin, setPin] = useState('')
   const [checking, setChecking] = useState(false)
 
   const validatePin = async (pin: string) => {
@@ -33,7 +33,8 @@ export function PinProtected({ stationCodename }: { stationCodename: string }) {
           type: 'success',
         })
         setOpen(false)
-        setPin(pin)
+        savePin(pin, stationCodename)
+        onValidated?.()
         setChecking(false)
       })
       .catch(() => {
