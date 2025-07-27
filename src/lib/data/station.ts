@@ -47,6 +47,10 @@ export async function minigamePass(teamUsername: string, stationCodename: string
   return await requests.post(`/station/minigame-pass/${teamUsername}`, { stationCodename, pin })
 }
 
-export async function hoiSinh(teamUsername: string, stationCodename: string, pin: string) {
+export async function skip(teamUsername: string, stationCodename: string, pin: string) {
   return await requests.post(`/station/skip/?teamUsername=${teamUsername}`, { stationCodename, pin })
+}
+
+export async function unskip(teamUsername: string, stationCodename: string, pin: string) {
+  return await requests.post(`/station/unskip/?teamUsername=${teamUsername}`, { stationCodename, pin })
 }

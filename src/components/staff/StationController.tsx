@@ -24,9 +24,15 @@ import { PinProtected } from '@/components/staff/PinProtected'
 import { toaster } from '@/components/ui/toaster'
 import { getPin } from '@/lib/data/pin'
 import { getSkillCardDisplayName, getTeamSkillCardHistory } from '@/lib/data/skill-card-history'
-import StationData, { finishStation, hoiSinh, minigamePass, stationEndpoints, visitStation } from '@/lib/data/station'
+import StationData, {
+  finishStation,
+  minigamePass,
+  skip,
+  stationEndpoints,
+  unskip,
+  visitStation,
+} from '@/lib/data/station'
 import { getAllTeams } from '@/lib/data/team'
-import { SkillCardAction } from '@/types/skill-card-action.enum'
 
 export function StationController({ stationCodename }: { stationCodename: string }) {
   const [authenticated, setAuthenticated] = useState(false)
@@ -65,12 +71,10 @@ export function StationController({ stationCodename }: { stationCodename: string
   )
 
   const teamSkillCardHistoryCollection = useMemo(
-    () => teamSkillCardHistory
-      ?.filter((history: SkillCardHistory) => history.action === SkillCardAction.USED)
-      .map(card => ({
-        value: card,
-        label: getSkillCardDisplayName(card.skillCard),
-      })),
+    () => teamSkillCardHistory?.map(card => ({
+      value: card,
+      label: getSkillCardDisplayName(card.skillCard),
+    })),
     [teamSkillCardHistory],
   )
 
@@ -164,7 +168,7 @@ export function StationController({ stationCodename }: { stationCodename: string
               variant="subtle"
               onClick={async () => {
                 try {
-                  await hoiSinh(currentTeam!.username, stationCodename, getPin(stationCodename)!)
+                  await skip(currentTeam!.username, stationCodename, getPin(stationCodename)!)
                   toaster.create({
                     type: 'success',
                     title: 'Thành công',
@@ -181,7 +185,31 @@ export function StationController({ stationCodename }: { stationCodename: string
                 }
               }}
             >
-              Sử dụng thẻ hồi sinh
+              SKIP
+            </Button>
+            <Button
+              disabled={!currentTeam}
+              variant="subtle"
+              onClick={async () => {
+                try {
+                  await unskip(currentTeam!.username, stationCodename, getPin(stationCodename)!)
+                  toaster.create({
+                    type: 'success',
+                    title: 'Thành công',
+                    description: 'Đã sử dụng thẻ ',
+                  })
+                }
+                catch (error) {
+                  console.error('Error using minigame pass:', error)
+                  toaster.create({
+                    type: 'error',
+                    title: 'Lỗi',
+                    description: 'Không thể sử dụng thẻ',
+                  })
+                }
+              }}
+            >
+              UNSKIP
             </Button>
           </Card.Body>
         </Card.Root>
