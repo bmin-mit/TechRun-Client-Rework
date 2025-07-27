@@ -24,7 +24,7 @@ import { PinProtected } from '@/components/staff/PinProtected'
 import { toaster } from '@/components/ui/toaster'
 import { getPin } from '@/lib/data/pin'
 import { getSkillCardDisplayName, getTeamSkillCardHistory } from '@/lib/data/skill-card-history'
-import StationData, { finishStation, stationEndpoints, visitStation } from '@/lib/data/station'
+import StationData, { finishStation, hoiSinh, minigamePass, stationEndpoints, visitStation } from '@/lib/data/station'
 import { getAllTeams } from '@/lib/data/team'
 import { SkillCardAction } from '@/types/skill-card-action.enum'
 
@@ -135,8 +135,54 @@ export function StationController({ stationCodename }: { stationCodename: string
 
             <StationAction action="start" team={currentTeam} stationCodename={stationCodename} />
             <StationAction action="finish" team={currentTeam} stationCodename={stationCodename} />
-            <Button variant="subtle">Sử dụng thẻ vượt trạm minigame</Button>
-            <Button variant="subtle">Sử dụng thẻ hồi sinh</Button>
+            <Button
+              disabled={!currentTeam}
+              variant="subtle"
+              onClick={async () => {
+                try {
+                  await minigamePass(currentTeam!.username, stationCodename, getPin(stationCodename)!)
+                  toaster.create({
+                    type: 'success',
+                    title: 'Thành công',
+                    description: 'Đã sử dụng thẻ vượt trạm minigame.',
+                  })
+                }
+                catch (error) {
+                  console.error('Error using minigame pass:', error)
+                  toaster.create({
+                    type: 'error',
+                    title: 'Lỗi',
+                    description: 'Không thể sử dụng thẻ vượt trạm minigame. Vui lòng thử lại sau.',
+                  })
+                }
+              }}
+            >
+              Sử dụng thẻ vượt trạm minigame
+            </Button>
+            <Button
+              disabled={!currentTeam}
+              variant="subtle"
+              onClick={async () => {
+                try {
+                  await hoiSinh(currentTeam!.username, stationCodename, getPin(stationCodename)!)
+                  toaster.create({
+                    type: 'success',
+                    title: 'Thành công',
+                    description: 'Đã sử dụng thẻ ',
+                  })
+                }
+                catch (error) {
+                  console.error('Error using minigame pass:', error)
+                  toaster.create({
+                    type: 'error',
+                    title: 'Lỗi',
+                    description: 'Không thể sử dụng thẻ',
+                  })
+                }
+              }}
+            >
+              Sử dụng thẻ hồi sinh
+            </Button>
           </Card.Body>
         </Card.Root>
 
